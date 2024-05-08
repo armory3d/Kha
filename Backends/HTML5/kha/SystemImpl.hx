@@ -567,22 +567,8 @@ class SystemImpl {
 			if (canvas.getContext != null) {
 				#if !kha_html5_disable_automatic_size_adjust
 				if (lastCanvasClientWidth != canvas.clientWidth || lastCanvasClientHeight != canvas.clientHeight) {
-					// canvas.width is the actual backbuffer-size.
-					// canvas.clientWidth (which is read-only and equivalent to
-					// canvas.style.width in pixels) is the output-size
-					// and by default gets scaled by devicePixelRatio.
-					// We revert that scale so backbuffer and output-size
-					// are the same.
-
-					var scale = Browser.window.devicePixelRatio;
-					var clientWidth = canvas.clientWidth;
-					var clientHeight = canvas.clientHeight;
-					canvas.width = clientWidth;
-					canvas.height = clientHeight;
-					if (scale != 1) {
-						canvas.style.width = Std.int(clientWidth / scale) + "px";
-						canvas.style.height = Std.int(clientHeight / scale) + "px";
-					}
+					canvas.width = canvas.clientWidth;
+					canvas.height = canvas.clientHeight;
 					lastCanvasClientWidth = canvas.clientWidth;
 					lastCanvasClientHeight = canvas.clientHeight;
 				}
