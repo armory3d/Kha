@@ -2,16 +2,16 @@ package kha;
 
 import haxe.io.Bytes;
 import js.Browser;
-import js.lib.Uint8Array;
-import js.lib.Uint16Array;
-import js.lib.Float32Array;
 import js.html.VideoElement;
-import js.html.webgl.GL;
 import js.html.webgl.Framebuffer;
+import js.html.webgl.GL;
 import js.html.webgl.Renderbuffer;
 import js.html.webgl.Texture;
-import kha.graphics4.TextureFormat;
+import js.lib.Float32Array;
+import js.lib.Uint16Array;
+import js.lib.Uint8Array;
 import kha.graphics4.DepthStencilFormat;
+import kha.graphics4.TextureFormat;
 import kha.js.graphics4.Graphics;
 
 class WebGLImage extends Image {
@@ -438,6 +438,8 @@ class WebGLImage extends Image {
 
 	public var bytes: Bytes;
 
+	var isStorageAllocated = false;
+
 	override public function lock(level: Int = 0): Bytes {
 		bytes = Bytes.alloc(formatByteSize(myFormat) * width * height);
 		return bytes;
@@ -447,7 +449,10 @@ class WebGLImage extends Image {
 		data = null;
 		image = null;
 
-		if (SystemImpl.gl != null) {
+		if (SystemImpl.gl == null)
+			return;
+
+		if (texture == null) {
 			texture = SystemImpl.gl.createTexture();
 			// texture.image = image;
 			SystemImpl.gl.bindTexture(GL.TEXTURE_2D, texture);
@@ -457,9 +462,17 @@ class WebGLImage extends Image {
 			SystemImpl.gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
 			SystemImpl.gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
 			SystemImpl.gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+		}
+		else {
+			SystemImpl.gl.bindTexture(GL.TEXTURE_2D, texture);
+		}
 
-			switch (myFormat) {
-				case L8:
+		switch (myFormat) {
+			case L8:
+				if (isStorageAllocated) {
+					SystemImpl.gl.texSubImage2D(GL.TEXTURE_2D, 0, 0, 0, width, height, GL.LUMINANCE, GL.UNSIGNED_BYTE, bytesToArray(bytes));
+				}
+				else {
 					SystemImpl.gl.texImage2D(GL.TEXTURE_2D, 0, GL.LUMINANCE, width, height, 0, GL.LUMINANCE, GL.UNSIGNED_BYTE, bytesToArray(bytes));
 
 					if (SystemImpl.ie && SystemImpl.gl.getError() == 1282) { // no LUMINANCE support in IE11
@@ -474,29 +487,48 @@ class WebGLImage extends Image {
 							}
 						SystemImpl.gl.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, bytesToArray(rgbaBytes));
 					}
-				case RGBA128:
-					SystemImpl.gl.texImage2D(GL.TEXTURE_2D, 0, SystemImpl.gl2 ? GL_RGBA32F : GL.RGBA, width, height, 0, GL.RGBA, GL.FLOAT,
-						bytesToArray(bytes));
-				case RGBA64:
+				}
+			case RGBA128:
+				if (isStorageAllocated)
+					SystemImpl.gl.texSubImage2D(GL.TEXTURE_2D, 0, 0, 0, width, height, GL.RGBA, GL.FLOAT, bytesToArray(bytes));
+				else
+					SystemImpl.gl.texImage2D(GL.TEXTURE_2D, 0, SystemImpl.gl2 ? GL_RGBA32F : GL.RGBA, width, height, 0, GL.RGBA, GL.FLOAT, bytesToArray(bytes));
+			case RGBA64:
+				if (isStorageAllocated)
+					SystemImpl.gl.texSubImage2D(GL.TEXTURE_2D, 0, 0, 0, width, height, GL.RGBA, SystemImpl.halfFloat.HALF_FLOAT_OES, bytesToArray(bytes));
+				else
 					SystemImpl.gl.texImage2D(GL.TEXTURE_2D, 0, SystemImpl.gl2 ? GL_RGBA16F : GL.RGBA, width, height, 0, GL.RGBA,
 						SystemImpl.halfFloat.HALF_FLOAT_OES, bytesToArray(bytes));
-				case A32:
+			case A32:
+				if (isStorageAllocated)
+					SystemImpl.gl.texSubImage2D(GL.TEXTURE_2D, 0, 0, 0, width, height, SystemImpl.gl2 ? GL_RED : GL.ALPHA, GL.FLOAT, bytesToArray(bytes));
+				else
 					SystemImpl.gl.texImage2D(GL.TEXTURE_2D, 0, SystemImpl.gl2 ? GL_R32F : GL.ALPHA, width, height, 0, SystemImpl.gl2 ? GL_RED : GL.ALPHA,
 						GL.FLOAT, bytesToArray(bytes));
-				case A16:
+			case A16:
+				if (isStorageAllocated)
+					SystemImpl.gl.texSubImage2D(GL.TEXTURE_2D, 0, 0, 0, width, height, SystemImpl.gl2 ? GL_RED : GL.ALPHA,
+						SystemImpl.halfFloat.HALF_FLOAT_OES, bytesToArray(bytes));
+				else
 					SystemImpl.gl.texImage2D(GL.TEXTURE_2D, 0, SystemImpl.gl2 ? GL_R16F : GL.ALPHA, width, height, 0, SystemImpl.gl2 ? GL_RED : GL.ALPHA,
 						SystemImpl.halfFloat.HALF_FLOAT_OES, bytesToArray(bytes));
-				case RGBA32:
+			case RGBA32:
+				if (isStorageAllocated)
+					SystemImpl.gl.texSubImage2D(GL.TEXTURE_2D, 0, 0, 0, width, height, GL.RGBA, GL.UNSIGNED_BYTE, bytesToArray(bytes));
+				else
 					SystemImpl.gl.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, bytesToArray(bytes));
-				default:
+			default:
+				if (isStorageAllocated)
+					SystemImpl.gl.texSubImage2D(GL.TEXTURE_2D, 0, 0, 0, width, height, GL.RGBA, GL.UNSIGNED_BYTE, bytesToArray(bytes));
+				else
 					SystemImpl.gl.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, bytesToArray(bytes));
-			}
+		}
+		isStorageAllocated = true;
 
-			SystemImpl.gl.bindTexture(GL.TEXTURE_2D, null);
+		SystemImpl.gl.bindTexture(GL.TEXTURE_2D, null);
 
-			if (!readable) {
-				bytes = null;
-			}
+		if (!readable) {
+			bytes = null;
 		}
 	}
 
