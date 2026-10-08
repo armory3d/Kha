@@ -14,7 +14,7 @@ class VertexBuffer {
 	var structure: VertexStructure;
 	var mySize: Int;
 	var lockStart: Int = 0;
-	var lockEnd: Int = 0;
+	var lockCount: Int = 0;
 
 	public function new(vertexCount: Int, structure: VertexStructure, usage: Usage, instanceDataStepRate: Int = 0, canRead: Bool = false) {
 		this.vertexCount = vertexCount;
@@ -30,8 +30,8 @@ class VertexBuffer {
 
 	public function lock(?start: Int, ?count: Int): Float32Array {
 		lockStart = start != null ? start : 0;
-		lockEnd = count != null ? start + count : mySize;
-		_data = new kha.arrays.ByteArray(Krom.lockVertexBuffer(buffer, lockStart, lockEnd));
+		lockCount = count != null ? count : mySize - lockStart;
+		_data = new kha.arrays.ByteArray(Krom.lockVertexBuffer(buffer, lockStart, lockCount));
 		return _data;
 	}
 
@@ -41,9 +41,9 @@ class VertexBuffer {
 
 	public function unlock(?count: Int): Void {
 		if (count != null) {
-			lockEnd = lockStart + count;
+			lockCount = count;
 		}
-		Krom.unlockVertexBuffer(buffer, lockEnd);
+		Krom.unlockVertexBuffer(buffer, lockCount);
 	}
 
 	public function stride(): Int {

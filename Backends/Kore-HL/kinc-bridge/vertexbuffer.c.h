@@ -28,14 +28,14 @@ void hl_kinc_delete_vertexbuffer(vbyte *buffer) {
 	free(buf);
 }
 
-vbyte *hl_kinc_vertexbuffer_lock(vbyte *buffer) {
+vbyte *hl_kinc_vertexbuffer_lock(vbyte *buffer, int start, int count) {
 	kinc_g4_vertex_buffer_t *buf = (kinc_g4_vertex_buffer_t *)buffer;
-	return (vbyte *)kinc_g4_vertex_buffer_lock_all(buf);
+	return (vbyte *)kinc_g4_vertex_buffer_lock(buf, start, count);
 }
 
 void hl_kinc_vertexbuffer_unlock(vbyte *buffer, int count) {
 	kinc_g4_vertex_buffer_t *buf = (kinc_g4_vertex_buffer_t *)buffer;
-	kinc_g4_vertex_buffer_unlock_all(buf);
+	kinc_g4_vertex_buffer_unlock(buf, count);
 }
 
 int hl_kinc_vertexbuffer_count(vbyte *buffer) {

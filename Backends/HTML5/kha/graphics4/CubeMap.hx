@@ -22,6 +22,8 @@ class CubeMap implements Canvas implements Resource {
 	static inline var GL_RGBA32F = 0x8814;
 	static inline var GL_R16F = 0x822D;
 	static inline var GL_R32F = 0x822E;
+	static inline var GL_RGBA16UI = 0x8D76;
+	static inline var GL_RGBA_INTEGER = 0x8D99;
 	static inline var GL_DEPTH_COMPONENT24 = 0x81A6;
 	static inline var GL_DEPTH24_STENCIL8 = 0x88F0;
 	static inline var GL_DEPTH32F_STENCIL8 = 0x8CAD;
@@ -51,8 +53,10 @@ class CubeMap implements Canvas implements Resource {
 		texture = SystemImpl.gl.createTexture();
 		SystemImpl.gl.bindTexture(GL.TEXTURE_CUBE_MAP, texture);
 
-		SystemImpl.gl.texParameteri(GL.TEXTURE_CUBE_MAP, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-		SystemImpl.gl.texParameteri(GL.TEXTURE_CUBE_MAP, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+		final isIntegerFormat = format == RGBA64U;
+		final filter = isIntegerFormat ? GL.NEAREST : GL.LINEAR;
+		SystemImpl.gl.texParameteri(GL.TEXTURE_CUBE_MAP, GL.TEXTURE_MAG_FILTER, filter);
+		SystemImpl.gl.texParameteri(GL.TEXTURE_CUBE_MAP, GL.TEXTURE_MIN_FILTER, filter);
 		SystemImpl.gl.texParameteri(GL.TEXTURE_CUBE_MAP, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
 		SystemImpl.gl.texParameteri(GL.TEXTURE_CUBE_MAP, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
 
@@ -76,6 +80,10 @@ class CubeMap implements Canvas implements Resource {
 				case RGBA32:
 					for (i in 0...6)
 						SystemImpl.gl.texImage2D(GL.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL.RGBA, myWidth, myHeight, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
+				case RGBA64U:
+					for (i in 0...6)
+						SystemImpl.gl.texImage2D(GL.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16UI, myWidth, myHeight, 0, GL_RGBA_INTEGER, GL.UNSIGNED_SHORT,
+							null);
 				case A32:
 					for (i in 0...6)
 						SystemImpl.gl.texImage2D(GL.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, SystemImpl.gl2 ? GL_R32F : GL.ALPHA, myWidth, myHeight, 0, GL.ALPHA,

@@ -361,10 +361,16 @@ class SystemImpl {
 		}
 		if (pad.axes.length <= 4 && pad.buttons.length > 7) {
 			// Fix for the triggers not being axis in html5
-			gamepadStates[pad.index].axes[4] = pad.buttons[6].value;
-			gamepads[pad.index].sendAxisEvent(4, pad.buttons[6].value);
-			gamepadStates[pad.index].axes[5] = pad.buttons[7].value;
-			gamepads[pad.index].sendAxisEvent(5, pad.buttons[7].value);
+			var leftTrigger = pad.buttons[6].value;
+			var rightTrigger = pad.buttons[7].value;
+			if (gamepadStates[pad.index].axes[4] != leftTrigger) {
+				gamepadStates[pad.index].axes[4] = leftTrigger;
+				gamepads[pad.index].sendAxisEvent(4, leftTrigger);
+			}
+			if (gamepadStates[pad.index].axes[5] != rightTrigger) {
+				gamepadStates[pad.index].axes[5] = rightTrigger;
+				gamepads[pad.index].sendAxisEvent(5, rightTrigger);
+			}
 		}
 	}
 
@@ -393,7 +399,6 @@ class SystemImpl {
 					antialias: options.framebuffer.samplesPerPixel > 1,
 					stencil: true
 				}); // preserveDrawingBuffer: true } ); Warning: preserveDrawingBuffer can cause huge performance issues on mobile browsers
-			SystemImpl.gl.pixelStorei(GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
 
 			halfFloat = {HALF_FLOAT_OES: 0x140B}; // GL_HALF_FLOAT
 			depthTexture = {UNSIGNED_INT_24_8_WEBGL: 0x84FA}; // GL_UNSIGNED_INT_24_8
@@ -422,7 +427,6 @@ class SystemImpl {
 						antialias: options.framebuffer.samplesPerPixel > 1,
 						stencil: true
 					}); // preserveDrawingBuffer: true } ); WARNING: preserveDrawingBuffer causes huge performance issues (on mobile browser)!
-				SystemImpl.gl.pixelStorei(GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
 				SystemImpl.gl.getExtension("OES_texture_float");
 				SystemImpl.gl.getExtension("OES_texture_float_linear");
 				halfFloat = SystemImpl.gl.getExtension("OES_texture_half_float");

@@ -64,8 +64,11 @@ static kinc_g4_render_target_format_t convertColorAttachment(int format) {
 	case 5:
 		return KINC_G4_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT;
 	case 6:
-	default:
 		return KINC_G4_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT;
+	case 7:
+		return KINC_G4_RENDER_TARGET_FORMAT_64BIT_INTEGER;
+	default:
+		return KINC_G4_RENDER_TARGET_FORMAT_32BIT;
 	}
 }
 

@@ -38,6 +38,8 @@ class CubeMap implements Canvas implements Resource {
 				return 3;
 			case DEPTH16: // Target16BitDepth
 				return 4;
+			case RGBA64U: // Target64BitInteger
+				return 7;
 			default:
 				return 0;
 		}
@@ -75,6 +77,8 @@ class CubeMap implements Canvas implements Resource {
 				return 4;
 			case A32:
 				return 5;
+			case RGBA64U:
+				return 8;
 			default:
 				return 1; // Grey 8
 		}

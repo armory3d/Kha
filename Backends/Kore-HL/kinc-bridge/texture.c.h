@@ -20,13 +20,19 @@ static kinc_image_format_t convertImageFormat(int format) {
 	case 1:
 		return KINC_IMAGE_FORMAT_GREY8;
 	case 2:
+		return KINC_IMAGE_FORMAT_RGB24;
+	case 3:
 		return KINC_IMAGE_FORMAT_RGBA128;
 	case 4:
 		return KINC_IMAGE_FORMAT_RGBA64;
 	case 5:
 		return KINC_IMAGE_FORMAT_A32;
 	case 6:
+		return KINC_IMAGE_FORMAT_BGRA32;
+	case 7:
 		return KINC_IMAGE_FORMAT_A16;
+	case 8:
+		return KINC_IMAGE_FORMAT_RGBA64U;
 	}
 }
 
@@ -38,6 +44,7 @@ static int sizeOf(kinc_image_format_t format) {
 	case KINC_IMAGE_FORMAT_BGRA32:
 		return 4;
 	case KINC_IMAGE_FORMAT_RGBA64:
+	case KINC_IMAGE_FORMAT_RGBA64U:
 		return 8;
 	case KINC_IMAGE_FORMAT_A32:
 		return 4;
