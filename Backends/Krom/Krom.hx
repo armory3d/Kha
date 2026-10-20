@@ -126,6 +126,7 @@ extern class Krom {
 	static function displayIsPrimary(index: Int): Bool;
 	static function writeStorage(name: String, data: haxe.io.BytesData): Void;
 	static function readStorage(name: String): haxe.io.BytesData;
+	static function setApplicationName(name: String): Void;
 
 	static function fileSaveBytes(path: String, bytes: haxe.io.BytesData): Void;
 	static function sysCommand(cmd: String, ?args: Array<String>): Int;
@@ -133,6 +134,8 @@ extern class Krom {
 	static function getArgCount(): Int;
 	static function getArg(index: Int): String;
 	static function getFilesLocation(): String;
+	static function listDirectories(path: String): Array<String>;
+	static function listFiles(path: String): Array<String>;
 
 	static function setBoolCompute(location: kha.compute.ConstantLocation, value: Bool): Void;
 	static function setIntCompute(location: kha.compute.ConstantLocation, value: Int): Void;
