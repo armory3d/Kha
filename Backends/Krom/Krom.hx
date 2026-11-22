@@ -43,6 +43,10 @@ extern class Krom {
 	static function beginFace(renderTarget: kha.Canvas, face: Int): Void;
 	static function end(): Void;
 	static function renderTargetsInvertedY(): Bool;
+	// NVIDIA DLSS (Vulkan Krom built with the DLSS SDK); quality: 0 DLAA, 1 Quality, 2 Balanced, 3 Performance, 4 Ultra Performance
+	static function dlssAvailable(): Bool;
+	static function dlssRenderSize(quality: Int, outputWidth: Int, outputHeight: Int): Array<Int>;
+	static function dlssEvaluate(quality: Int, color: Dynamic, depth: Dynamic, motion: Dynamic, output: Dynamic, jitterX: Float, jitterY: Float, motionScaleX: Float, motionScaleY: Float, reset: Bool, hdr: Bool): Bool;
 	static function viewport(x: Int, y: Int, width: Int, height: Int): Void;
 	static function scissor(x: Int, y: Int, width: Int, height: Int): Void;
 	static function disableScissor(): Void;
